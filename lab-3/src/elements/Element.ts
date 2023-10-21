@@ -207,7 +207,7 @@ class Element {
         (nextElement) => nextElement.probability === undefined,
       )
     ) {
-      throw new Error('Priority is not defined');
+      throw new Error('Probability is not defined');
     }
 
     if (
