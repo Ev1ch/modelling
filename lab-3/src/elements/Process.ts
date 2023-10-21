@@ -2,16 +2,16 @@ import Distribution from '../Distribution';
 import Element from './Element';
 import Worker, { WorkerState } from './Worker';
 import Variation from './Variation';
+import Queue from './Queue';
 
 export interface ProcessOptions {
   maxWorkersNumber: number;
-  maxQueueSize: number;
   variation: Variation;
   distribution: Distribution;
 }
 
 export default class Process extends Element {
-  private _queue: number;
+  private _queue: Queue;
   private _maxQueueSize: number;
   private _failuresNumber: number;
   private _maxWorkersNumber: number;
@@ -22,15 +22,15 @@ export default class Process extends Element {
   constructor(
     name: string,
     delay: number,
-    { maxWorkersNumber, maxQueueSize, variation, distribution }: ProcessOptions,
+    queue: Queue,
+    { maxWorkersNumber, variation, distribution }: ProcessOptions,
   ) {
     super(name, delay);
     this._failuresNumber = 0;
     this._meanQueue = 0;
     this._workers = [];
     this._workingTime = 0;
-    this._queue = 0;
-    this._maxQueueSize = maxQueueSize;
+    this._queue = queue;
     this._maxWorkersNumber = maxWorkersNumber;
     this.variation = variation;
     this.distribution = distribution;
@@ -52,8 +52,8 @@ export default class Process extends Element {
       return;
     }
 
-    if (this._queue < this._maxQueueSize) {
-      this._queue += 1;
+    if (!this._queue.isFull()) {
+      this._queue.addItem();
       return;
     }
 
@@ -85,8 +85,8 @@ export default class Process extends Element {
       return;
     }
 
-    if (this._queue > 0) {
-      this._queue -= 1;
+    if (!this._queue.isEmpty()) {
+      this._queue.removeItem();
       busyWorker.state = WorkerState.BUSY;
       busyWorker.tNext = this.tCurrent + this.delay;
       this._workingTime += this.delay;
@@ -100,7 +100,7 @@ export default class Process extends Element {
     return this._queue;
   }
 
-  public set queue(queue: number) {
+  public set queue(queue: Queue) {
     this._queue = queue;
   }
 
@@ -129,7 +129,7 @@ export default class Process extends Element {
   }
 
   public isFree() {
-    return this.getFreeWorker() || this._queue < this._maxQueueSize;
+    return this.getFreeWorker() || !this._queue.isFull();
   }
 
   private getFreeWorkers() {
@@ -159,7 +159,7 @@ export default class Process extends Element {
   }
 
   public doStatistics(delta: number) {
-    this._meanQueue = this._meanQueue + this._queue * delta;
+    this._meanQueue = this._meanQueue + this._queue.itemsNumber * delta;
   }
 
   private getBusyWorkers() {

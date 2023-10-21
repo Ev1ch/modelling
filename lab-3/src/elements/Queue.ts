@@ -23,7 +23,15 @@ export default class Queue {
     this._itemsNumber--;
   }
 
+  public get itemsNumber() {
+    return this._itemsNumber;
+  }
+
   public isFull() {
     return this._itemsNumber === this._size;
+  }
+
+  public isEmpty() {
+    return this._itemsNumber === 0;
   }
 }
