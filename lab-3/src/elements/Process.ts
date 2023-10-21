@@ -74,9 +74,17 @@ export default class Process extends Element {
     busyWorker.state = WorkerState.FREE;
 
     const fullNextElement = this.getFullNextElement();
-    const nextElement = fullNextElement?.element;
-    if (nextElement?.isBusy() && fullNextElement?.withBlocking) {
-      busyWorker.tNext = nextElement.tNext;
+
+    if (fullNextElement?.withBlocking) {
+      console.log('fullNextElement', fullNextElement);
+    }
+
+    if (
+      fullNextElement &&
+      !fullNextElement.element.isFree() &&
+      fullNextElement.withBlocking
+    ) {
+      busyWorker.tNext = fullNextElement.element.tNext;
       busyWorker.state = WorkerState.BUSY;
       return;
     }
@@ -89,7 +97,7 @@ export default class Process extends Element {
       this.tNext = this.getMinimumWorkersTNext();
     }
 
-    nextElement?.inAct();
+    fullNextElement?.element.inAct();
   }
 
   public get queue() {
@@ -125,7 +133,7 @@ export default class Process extends Element {
   }
 
   public isFree() {
-    return this.getFreeWorker() !== null || this._queue < this._maxQueueSize;
+    return this.getFreeWorker() || this._queue < this._maxQueueSize;
   }
 
   private getFreeWorkers() {

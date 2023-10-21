@@ -135,10 +135,6 @@ class Element {
     return this._state === 0;
   }
 
-  public isBusy() {
-    return !this.isFree();
-  }
-
   public printResult() {
     process.stdout.write(
       [chalk.green(this._name), `quantity = ${this._quantity}`]
