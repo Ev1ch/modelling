@@ -1,26 +1,43 @@
+import Distribution from './Distribution';
 import { Create, Process } from './elements';
+import Variation from './elements/Variation';
 import Model from './Model';
 
-const MAX_QUEUE_SIZE = 5;
-const MAX_WORKERS_NUMBER = 1;
+const create = new Create('CREATE', 1, {
+  variation: Variation.RANDOM,
+  distribution: Distribution.EXPONENTIAL,
+});
 
-const create = new Create('CREATOR', 1);
 const process1 = new Process('PROCESS 1', 1, {
-  maxWorkersNumber: MAX_WORKERS_NUMBER,
-  maxQueueSize: MAX_QUEUE_SIZE,
-});
-const process2 = new Process('PROCESS 2', 1, {
-  maxWorkersNumber: MAX_WORKERS_NUMBER,
-  maxQueueSize: MAX_QUEUE_SIZE,
-});
-const process3 = new Process('PROCESS 3', 1, {
-  maxWorkersNumber: MAX_WORKERS_NUMBER,
-  maxQueueSize: MAX_QUEUE_SIZE,
+  maxQueueSize: 0,
+  maxWorkersNumber: 1,
+  variation: Variation.RANDOM,
+  distribution: Distribution.EXPONENTIAL,
 });
 
-create.nextElements = [process1];
-process1.nextElements = [process2];
-process2.nextElements = [process3];
+const process2 = new Process('PROCESS 2', 2, {
+  maxQueueSize: Infinity,
+  maxWorkersNumber: 2,
+  distribution: Distribution.EXPONENTIAL,
+  variation: Variation.PROBABILISTIC,
+});
+
+const process3 = new Process('PROCESS 3', 2, {
+  maxQueueSize: 5,
+  maxWorkersNumber: 1,
+  distribution: Distribution.EXPONENTIAL,
+  variation: Variation.RANDOM,
+});
+
+create.nextElements = [
+  { element: process1, probability: 1, withBlocking: false, priority: 1 },
+];
+process1.nextElements = [
+  { element: process2, probability: 1, withBlocking: false, priority: 1 },
+];
+process2.nextElements = [
+  { element: process3, probability: 1, withBlocking: true, priority: 1 },
+];
 
 const model = new Model([create, process1, process2, process3]);
 model.simulate(1000);
