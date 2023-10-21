@@ -32,7 +32,7 @@ class Element {
     this._nextElements = [];
     this._id = Element.nextId++;
     this._name = name || `element_${this._id}`;
-    this._variation = Variation.PROBABILISTIC;
+    this._variation = Variation.RANDOM;
 
     console.log(`id=${this._id}`);
   }
@@ -232,9 +232,13 @@ class Element {
   }
 
   public getRandomNextElement() {
+    if (this._nextElements.length === 0) {
+      return null;
+    }
+
     return this._nextElements[
       Math.floor(Math.random() * this._nextElements.length)
-    ];
+    ].element;
   }
 }
 
