@@ -5,6 +5,13 @@ import Random from '../Random';
 import Settings from '../Settings';
 import Variation from './Variation';
 
+interface NextElement {
+  element: Element;
+  probability: number;
+  priority: number;
+  withBlocking: boolean;
+}
+
 class Element {
   private _name: string;
   private _tNext: number;
@@ -13,11 +20,7 @@ class Element {
   private _quantity: number = 0;
   private _tCurrent: number;
   private _state: number;
-  private _nextElements: {
-    element: Element;
-    probability?: number;
-    priority?: number;
-  }[];
+  private _nextElements: NextElement[];
   private _id: number;
   private _variation: Variation;
 
@@ -46,9 +49,7 @@ class Element {
     }
   }
 
-  public set nextElements(
-    nextElements: { element: Element; probability?: number }[],
-  ) {
+  public set nextElements(nextElements: NextElement[]) {
     this._nextElements = nextElements;
   }
 
@@ -171,6 +172,18 @@ class Element {
       default:
         throw new Error('Wrong variation type');
     }
+  }
+
+  protected getFullNextElement() {
+    const element = this.getNextElement();
+
+    if (element === null) {
+      return null;
+    }
+
+    return this._nextElements.find(
+      ({ element: nextElement }) => nextElement === element,
+    );
   }
 
   protected getNextElementByPriority() {

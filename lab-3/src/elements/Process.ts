@@ -8,7 +8,6 @@ export interface ProcessOptions {
   maxQueueSize: number;
   variation: Variation;
   distribution: Distribution;
-  withBlocking: boolean;
 }
 
 export default class Process extends Element {
@@ -19,18 +18,11 @@ export default class Process extends Element {
   private _workers: Worker[];
   private _meanQueue: number;
   private _workingTime: number;
-  private _withBlocking: boolean;
 
   constructor(
     name: string,
     delay: number,
-    {
-      maxWorkersNumber,
-      maxQueueSize,
-      withBlocking,
-      variation,
-      distribution,
-    }: ProcessOptions,
+    { maxWorkersNumber, maxQueueSize, variation, distribution }: ProcessOptions,
   ) {
     super(name, delay);
     this._failuresNumber = 0;
@@ -42,7 +34,6 @@ export default class Process extends Element {
     this._maxWorkersNumber = maxWorkersNumber;
     this.variation = variation;
     this.distribution = distribution;
-    this._withBlocking = withBlocking;
 
     for (let i = 0; i < this._maxWorkersNumber; i++) {
       this._workers.push(new Worker(i));
@@ -82,9 +73,9 @@ export default class Process extends Element {
     this.tNext = this.getMinimumWorkersTNext();
     busyWorker.state = WorkerState.FREE;
 
-    const nextElement = this.getNextElement();
-    // @ts-ignore
-    if (nextElement?.isBusy() && nextElement?.withBlocking) {
+    const fullNextElement = this.getFullNextElement();
+    const nextElement = fullNextElement?.element;
+    if (nextElement?.isBusy() && fullNextElement?.withBlocking) {
       busyWorker.tNext = nextElement.tNext;
       busyWorker.state = WorkerState.BUSY;
       return;
@@ -131,14 +122,6 @@ export default class Process extends Element {
 
   public get workingTime() {
     return this._workingTime;
-  }
-
-  public get withBlocking() {
-    return this._withBlocking;
-  }
-
-  public set withBlocking(withBlocking: boolean) {
-    this._withBlocking = withBlocking;
   }
 
   public isFree() {
