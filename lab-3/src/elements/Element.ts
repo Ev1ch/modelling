@@ -166,6 +166,8 @@ class Element {
         return this.getNextElementByProbability();
       case Variation.PRIORITIZED:
         return this.getNextElementByPriority();
+      case Variation.RANDOM:
+        return this.getRandomNextElement();
       default:
         throw new Error('Wrong variation type');
     }
@@ -227,6 +229,12 @@ class Element {
     }
 
     return null;
+  }
+
+  public getRandomNextElement() {
+    return this._nextElements[
+      Math.floor(Math.random() * this._nextElements.length)
+    ];
   }
 }
 
