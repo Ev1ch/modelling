@@ -8,6 +8,7 @@ export interface ProcessOptions {
   maxQueueSize: number;
   variation?: Variation;
   distribution?: Distribution;
+  withBlocking?: boolean;
 }
 
 export default class Process extends Element {
@@ -18,6 +19,7 @@ export default class Process extends Element {
   private _workers: Worker[];
   private _meanQueue: number;
   private _workingTime: number;
+  private _withBlocking: boolean;
 
   constructor(
     name: string,
@@ -25,6 +27,7 @@ export default class Process extends Element {
     {
       maxWorkersNumber,
       maxQueueSize,
+      withBlocking = false,
       variation = Variation.PROBABILISTIC,
       distribution = Distribution.EXPONENTIAL,
     }: ProcessOptions,
@@ -39,6 +42,7 @@ export default class Process extends Element {
     this._maxWorkersNumber = maxWorkersNumber;
     this.variation = variation;
     this.distribution = distribution;
+    this._withBlocking = withBlocking;
 
     for (let i = 0; i < this._maxWorkersNumber; i++) {
       this._workers.push(new Worker(i));
@@ -78,6 +82,14 @@ export default class Process extends Element {
     this.tNext = this.getMinimumWorkersTNext();
     busyWorker.state = WorkerState.FREE;
 
+    const nextElement = this.getNextElement();
+    // @ts-ignore
+    if (nextElement?.isBusy() && nextElement?.withBlocking) {
+      busyWorker.tNext = nextElement.tNext;
+      busyWorker.state = WorkerState.BUSY;
+      return;
+    }
+
     if (this._queue > 0) {
       this._queue -= 1;
       busyWorker.state = WorkerState.BUSY;
@@ -86,7 +98,7 @@ export default class Process extends Element {
       this.tNext = this.getMinimumWorkersTNext();
     }
 
-    this.getNextElement()?.inAct();
+    nextElement?.inAct();
   }
 
   public get queue() {
@@ -121,12 +133,16 @@ export default class Process extends Element {
     return this._workingTime;
   }
 
-  public isFree() {
-    return this.getFreeWorker() !== null || this._queue < this._maxQueueSize;
+  public get withBlocking() {
+    return this._withBlocking;
   }
 
-  public isBusy() {
-    return !this.isFree();
+  public set withBlocking(withBlocking: boolean) {
+    this._withBlocking = withBlocking;
+  }
+
+  public isFree() {
+    return this.getFreeWorker() !== null || this._queue < this._maxQueueSize;
   }
 
   private getFreeWorkers() {
