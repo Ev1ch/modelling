@@ -6,9 +6,9 @@ import Variation from './Variation';
 export interface ProcessOptions {
   maxWorkersNumber: number;
   maxQueueSize: number;
-  variation?: Variation;
-  distribution?: Distribution;
-  withBlocking?: boolean;
+  variation: Variation;
+  distribution: Distribution;
+  withBlocking: boolean;
 }
 
 export default class Process extends Element {
@@ -27,9 +27,9 @@ export default class Process extends Element {
     {
       maxWorkersNumber,
       maxQueueSize,
-      withBlocking = false,
-      variation = Variation.PROBABILISTIC,
-      distribution = Distribution.EXPONENTIAL,
+      withBlocking,
+      variation,
+      distribution,
     }: ProcessOptions,
   ) {
     super(name, delay);

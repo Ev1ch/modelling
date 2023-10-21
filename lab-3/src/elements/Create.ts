@@ -2,15 +2,11 @@ import Element from './Element';
 import Variation from './Variation';
 
 interface CreateOptions {
-  variation?: Variation;
+  variation: Variation;
 }
 
 export default class Create extends Element {
-  constructor(
-    name: string,
-    delay: number,
-    { variation = Variation.PROBABILISTIC }: CreateOptions = {},
-  ) {
+  constructor(name: string, delay: number, { variation }: CreateOptions) {
     super(name, delay);
     this.tNext = 0;
     this.variation = variation;
