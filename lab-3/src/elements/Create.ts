@@ -9,7 +9,7 @@ export default class Create extends Element {
   constructor(
     name: string,
     delay: number,
-    { variation = Variation.PROBABILISTIC }: CreateOptions,
+    { variation = Variation.PROBABILISTIC }: CreateOptions = {},
   ) {
     super(name, delay);
     this.tNext = 0;
