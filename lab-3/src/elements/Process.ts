@@ -75,10 +75,6 @@ export default class Process extends Element {
 
     const fullNextElement = this.getFullNextElement();
 
-    if (fullNextElement?.withBlocking) {
-      console.log('fullNextElement', fullNextElement);
-    }
-
     if (
       fullNextElement &&
       !fullNextElement.element.isFree() &&
