@@ -1,70 +1,50 @@
-import { Create, Delay, Process } from './elements';
-import Queue from './elements/Queue';
-import Variation from './elements/Variation';
+import { Create, Delay, Process, Queue, Variation } from './elements';
 import Model from './Model';
 
-const create = new Create('CREATE', Delay.getExponential(1), {
-  variation: Variation.RANDOM,
-});
+class Models {
+  public static getBankModel() {
+    const clients = new Create('CLIENTS ARRIVAL', Delay.getConstant(0.1), {
+      variation: Variation.BY_QUEUE_LENGTH,
+    });
+    clients.outAct();
+    clients.delay = Delay.getExponential(0.5);
 
-const process1 = new Process(
-  'PROCESS 1',
-  Delay.getExponential(1),
-  new Queue(0),
-  {
-    maxWorkersNumber: 1,
-    variation: Variation.RANDOM,
-    minimumDifferenceToSwap: Infinity,
-  },
-);
+    const cashier1 = new Process(
+      'CASHIER 1',
+      Delay.getNormal(1, 0.3),
+      new Queue(3, 2),
+      {
+        maxWorkersNumber: 1,
+        variation: Variation.RANDOM,
+        minimumDifferenceToSwap: 2,
+      },
+    );
+    cashier1.inAct();
+    cashier1.delay = Delay.getExponential(0.3);
 
-const process2 = new Process(
-  'PROCESS 2',
-  Delay.getExponential(2),
-  new Queue(Infinity),
-  {
-    maxWorkersNumber: 2,
-    variation: Variation.RANDOM,
-    minimumDifferenceToSwap: Infinity,
-  },
-);
+    const cashier2 = new Process(
+      'CASHIER 2',
+      Delay.getNormal(1, 0.3),
+      new Queue(3, 2),
+      {
+        maxWorkersNumber: 1,
+        variation: Variation.RANDOM,
+        minimumDifferenceToSwap: 2,
+      },
+    );
+    cashier2.inAct();
+    cashier2.delay = Delay.getExponential(0.3);
 
-const process3 = new Process(
-  'PROCESS 3',
-  Delay.getExponential(2),
-  new Queue(5),
-  {
-    maxWorkersNumber: 1,
-    variation: Variation.RANDOM,
-    minimumDifferenceToSwap: 2,
-  },
-);
+    clients.nextElements = [
+      { element: cashier1, probability: 0.5, priority: 1, withBlocking: false },
+      { element: cashier2, probability: 0.5, priority: 2, withBlocking: false },
+    ];
+    cashier1.neighbors = [cashier2];
+    cashier2.neighbors = [cashier1];
 
-const process4 = new Process(
-  'PROCESS 4',
-  Delay.getExponential(2),
-  new Queue(5),
-  {
-    maxWorkersNumber: 1,
-    variation: Variation.RANDOM,
-    minimumDifferenceToSwap: 2,
-  },
-);
+    return new Model([clients, cashier1, cashier2]);
+  }
+}
 
-create.nextElements = [
-  { element: process1, probability: 1, withBlocking: false, priority: 1 },
-];
-
-process1.nextElements = [
-  { element: process2, probability: 1, withBlocking: false, priority: 1 },
-];
-
-process3.neighbors = [process4];
-process4.neighbors = [process3];
-process2.nextElements = [
-  { element: process3, probability: 0.5, withBlocking: false, priority: 1 },
-  { element: process4, probability: 0.5, withBlocking: false, priority: 2 },
-];
-
-const model = new Model([create, process1, process2, process3, process4]);
+const model = Models.getBankModel();
 model.simulate(1000);
