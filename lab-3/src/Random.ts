@@ -23,16 +23,18 @@ export default class Random {
     return number;
   }
 
-  public static normal(mean: number, deviation: number) {
+  public static gaussian() {
     let number = 0;
 
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 6; i += 1) {
       number += Math.random();
     }
 
-    number -= 6;
+    return number / 6;
+  }
 
-    return mean + number * deviation;
+  public static normal(mean: number, deviation: number) {
+    return mean + Random.gaussian() * deviation;
   }
 
   public static erlang(mean: number, deviation: number) {
