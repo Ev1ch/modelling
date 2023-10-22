@@ -17,7 +17,7 @@ export default class Process extends Element {
   private _swapsNumber: number;
   private _minimumDifferenceToSwap: number;
   private _workers: Worker[];
-  private _meanQueue: number;
+  private _queueTime: number;
   private _workingTime: number;
   private _neighbors: Process[];
 
@@ -29,7 +29,7 @@ export default class Process extends Element {
   ) {
     super(name, delay);
     this._failuresNumber = 0;
-    this._meanQueue = 0;
+    this._queueTime = 0;
     this._workers = [];
     this._workingTime = 0;
     this._queue = queue;
@@ -138,8 +138,8 @@ export default class Process extends Element {
     return this._maxWorkersNumber;
   }
 
-  public get meanQueue() {
-    return this._meanQueue;
+  public get queueTime() {
+    return this._queueTime;
   }
 
   public get workingTime() {
@@ -156,6 +156,10 @@ export default class Process extends Element {
 
   public get swapsNumber() {
     return this._swapsNumber;
+  }
+
+  public get workers() {
+    return this._workers;
   }
 
   public isFree() {
@@ -189,7 +193,7 @@ export default class Process extends Element {
   }
 
   public doStatistics(delta: number) {
-    this._meanQueue = this._meanQueue + this._queue.size * delta;
+    this._queueTime += this._queue.size * delta;
   }
 
   private getBusyWorkers() {
