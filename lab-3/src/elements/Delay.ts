@@ -12,6 +12,10 @@ export default class Delay<
     return this._generator(...this._args);
   }
 
+  public getConstant(value: number) {
+    return new Delay((value: number) => value, [value]);
+  }
+
   public static getExponential(mean: number) {
     return new Delay(Random.exponential, [mean]);
   }
