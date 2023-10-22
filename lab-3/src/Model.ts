@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 
-import Element from './elements/Element';
-import Process from './elements/Process';
+import { Element, Process } from './elements';
 import Settings from './Settings';
 
 export default class Model {
