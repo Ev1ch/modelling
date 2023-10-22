@@ -16,7 +16,6 @@ class Element {
   private _name: string;
   private _tNext: number;
   private _delay: Delay;
-  private _distribution: Distribution;
   private _quantity: number = 0;
   private _tCurrent: number;
   private _state: number;
@@ -29,7 +28,6 @@ class Element {
   constructor(name: string, delay: Delay) {
     this._tNext = Infinity;
     this._delay = delay;
-    this._distribution = Distribution.EXPONENTIAL;
     this._tCurrent = this._tNext;
     this._state = 0;
     this._nextElements = [];
@@ -54,14 +52,6 @@ class Element {
 
   public get nextElements() {
     return this._nextElements;
-  }
-
-  public get distribution() {
-    return this._distribution;
-  }
-
-  public set distribution(distribution: Distribution) {
-    this._distribution = distribution;
   }
 
   public get quantity() {
@@ -239,6 +229,24 @@ class Element {
     return this._nextElements[
       Math.floor(Math.random() * this._nextElements.length)
     ].element;
+  }
+
+  public getNextElementByQueueLength() {
+    if (this._nextElements.length === 0) {
+      return null;
+    }
+
+    const sortedNextElements = [...this._nextElements].sort(
+      (a, b) => a.element.queue.length - b.element.queue.length,
+    );
+
+    for (const { element } of sortedNextElements) {
+      if (element.isFree()) {
+        return element;
+      }
+    }
+
+    return sortedNextElements[0].element;
   }
 }
 
