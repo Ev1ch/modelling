@@ -1,4 +1,3 @@
-import Distribution from '../Distribution';
 import Element from './Element';
 import Worker, { WorkerState } from './Worker';
 import Variation from './Variation';
@@ -108,7 +107,7 @@ export default class Process extends Element {
   private swapQueueItems() {
     for (const neighbor of this._neighbors) {
       if (
-        this._queue.itemsNumber - neighbor.queue.itemsNumber >=
+        this._queue.size - neighbor.queue.size >=
         this._minimumDifferenceToSwap
       ) {
         neighbor.queue.addItem();
@@ -190,7 +189,7 @@ export default class Process extends Element {
   }
 
   public doStatistics(delta: number) {
-    this._meanQueue = this._meanQueue + this._queue.itemsNumber * delta;
+    this._meanQueue = this._meanQueue + this._queue.size * delta;
   }
 
   private getBusyWorkers() {
