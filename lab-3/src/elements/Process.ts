@@ -3,6 +3,7 @@ import Element from './Element';
 import Worker, { WorkerState } from './Worker';
 import Variation from './Variation';
 import Queue from './Queue';
+import Delay from './Delay';
 
 export interface ProcessOptions {
   maxWorkersNumber: number;
@@ -21,7 +22,7 @@ export default class Process extends Element {
 
   constructor(
     name: string,
-    delay: number,
+    delay: Delay,
     queue: Queue,
     { maxWorkersNumber, variation, distribution }: ProcessOptions,
   ) {
@@ -34,6 +35,7 @@ export default class Process extends Element {
     this._maxWorkersNumber = maxWorkersNumber;
     this.variation = variation;
     this.distribution = distribution;
+    this.delay = delay;
 
     for (let i = 0; i < this._maxWorkersNumber; i++) {
       this._workers.push(new Worker(i));
@@ -45,7 +47,7 @@ export default class Process extends Element {
 
     if (freeWorker) {
       freeWorker.state = WorkerState.BUSY;
-      const delay = this.delay;
+      const delay = this.delay.get();
       freeWorker.tNext = this.tCurrent + delay;
       this._workingTime += delay;
       this.tNext = freeWorker.tNext;
@@ -88,8 +90,9 @@ export default class Process extends Element {
     if (!this._queue.isEmpty()) {
       this._queue.removeItem();
       busyWorker.state = WorkerState.BUSY;
-      busyWorker.tNext = this.tCurrent + this.delay;
-      this._workingTime += this.delay;
+      const delay = this.delay.get();
+      busyWorker.tNext = this.tCurrent + delay;
+      this._workingTime += delay;
       this.tNext = this.getMinimumWorkersTNext();
     }
 

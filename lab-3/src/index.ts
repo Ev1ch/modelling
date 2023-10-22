@@ -1,31 +1,46 @@
 import Distribution from './Distribution';
-import { Create, Process } from './elements';
+import { Create, Delay, Process } from './elements';
 import Queue from './elements/Queue';
 import Variation from './elements/Variation';
 import Model from './Model';
 
-const create = new Create('CREATE', 1, {
+const create = new Create('CREATE', Delay.getExponential(1), {
   variation: Variation.RANDOM,
   distribution: Distribution.EXPONENTIAL,
 });
 
-const process1 = new Process('PROCESS 1', 1, new Queue(0), {
-  maxWorkersNumber: 1,
-  variation: Variation.RANDOM,
-  distribution: Distribution.EXPONENTIAL,
-});
+const process1 = new Process(
+  'PROCESS 1',
+  Delay.getExponential(2),
+  new Queue(0),
+  {
+    maxWorkersNumber: 1,
+    variation: Variation.RANDOM,
+    distribution: Distribution.EXPONENTIAL,
+  },
+);
 
-const process2 = new Process('PROCESS 2', 2, new Queue(Infinity), {
-  maxWorkersNumber: 2,
-  distribution: Distribution.EXPONENTIAL,
-  variation: Variation.PROBABILISTIC,
-});
+const process2 = new Process(
+  'PROCESS 2',
+  Delay.getExponential(2),
+  new Queue(Infinity),
+  {
+    maxWorkersNumber: 2,
+    distribution: Distribution.EXPONENTIAL,
+    variation: Variation.PROBABILISTIC,
+  },
+);
 
-const process3 = new Process('PROCESS 3', 2, new Queue(5), {
-  maxWorkersNumber: 1,
-  distribution: Distribution.EXPONENTIAL,
-  variation: Variation.RANDOM,
-});
+const process3 = new Process(
+  'PROCESS 3',
+  Delay.getExponential(2),
+  new Queue(5),
+  {
+    maxWorkersNumber: 1,
+    distribution: Distribution.EXPONENTIAL,
+    variation: Variation.RANDOM,
+  },
+);
 
 create.nextElements = [
   { element: process1, probability: 1, withBlocking: false, priority: 1 },

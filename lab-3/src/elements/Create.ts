@@ -1,4 +1,5 @@
 import Distribution from '../Distribution';
+import Delay from './Delay';
 import Element from './Element';
 import Variation from './Variation';
 
@@ -10,7 +11,7 @@ interface CreateOptions {
 export default class Create extends Element {
   constructor(
     name: string,
-    delay: number,
+    delay: Delay,
     { variation, distribution }: CreateOptions,
   ) {
     super(name, delay);
@@ -22,7 +23,7 @@ export default class Create extends Element {
   public outAct() {
     super.outAct();
 
-    this.tNext = this.tCurrent + this.delay;
+    this.tNext = this.tCurrent + this.delay.get();
 
     this.getNextElement()?.inAct();
   }

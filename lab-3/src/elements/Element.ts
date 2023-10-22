@@ -1,9 +1,9 @@
 import chalk from 'chalk';
 
 import Distribution from '../Distribution';
-import Random from '../Random';
 import Settings from '../Settings';
 import Variation from './Variation';
+import Delay from './Delay';
 
 interface NextElement {
   element: Element;
@@ -15,7 +15,7 @@ interface NextElement {
 class Element {
   private _name: string;
   private _tNext: number;
-  private _delayMean: number;
+  private _delay: Delay;
   private _distribution: Distribution;
   private _quantity: number = 0;
   private _tCurrent: number;
@@ -26,9 +26,9 @@ class Element {
 
   private static nextId = 0;
 
-  constructor(name?: string, delay = 1) {
+  constructor(name: string, delay: Delay) {
     this._tNext = Infinity;
-    this._delayMean = delay;
+    this._delay = delay;
     this._distribution = Distribution.EXPONENTIAL;
     this._tCurrent = this._tNext;
     this._state = 0;
@@ -41,12 +41,11 @@ class Element {
   }
 
   public get delay() {
-    switch (this._distribution) {
-      case Distribution.EXPONENTIAL:
-        return Random.exponential(this._delayMean);
-      default:
-        throw new Error('Wrong distribution type!');
-    }
+    return this._delay;
+  }
+
+  public set delay(delay: Delay) {
+    this._delay = delay;
   }
 
   public set nextElements(nextElements: NextElement[]) {
@@ -97,14 +96,6 @@ class Element {
 
   public set tNext(tNext: number) {
     this._tNext = tNext;
-  }
-
-  public get delayMean() {
-    return this._delayMean;
-  }
-
-  public set delayMean(delay: number) {
-    this._delayMean = delay;
   }
 
   public get id() {
