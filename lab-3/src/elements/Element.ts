@@ -230,24 +230,6 @@ class Element {
       Math.floor(Math.random() * this._nextElements.length)
     ].element;
   }
-
-  public getNextElementByQueueLength() {
-    if (this._nextElements.length === 0) {
-      return null;
-    }
-
-    const sortedNextElements = [...this._nextElements].sort(
-      (a, b) => a.element.queue.length - b.element.queue.length,
-    );
-
-    for (const { element } of sortedNextElements) {
-      if (element.isFree()) {
-        return element;
-      }
-    }
-
-    return sortedNextElements[0].element;
-  }
 }
 
 export default Element;
