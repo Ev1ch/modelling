@@ -12,7 +12,7 @@ export default class Delay<
     return this._generator(...this._args);
   }
 
-  public getConstant(value: number) {
+  public static getConstant(value: number) {
     return new Delay((value: number) => value, [value]);
   }
 
