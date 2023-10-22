@@ -16,10 +16,18 @@ export default class Queue {
   }
 
   public addItem() {
+    if (this._itemsNumber === this._size) {
+      throw new Error('Queue is full');
+    }
+
     this._itemsNumber++;
   }
 
   public removeItem() {
+    if (this._itemsNumber === 0) {
+      throw new Error('Queue is empty');
+    }
+
     this._itemsNumber--;
   }
 
