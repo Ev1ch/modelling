@@ -24,7 +24,7 @@ const process2 = new Process(
   new Queue(Infinity),
   {
     maxWorkersNumber: 2,
-    variation: Variation.PROBABILISTIC,
+    variation: Variation.RANDOM,
     minimumDifferenceToSwap: Infinity,
   },
 );
@@ -63,7 +63,7 @@ process3.neighbors = [process4];
 process4.neighbors = [process3];
 process2.nextElements = [
   { element: process3, probability: 0.5, withBlocking: false, priority: 1 },
-  { element: process4, probability: 0.5, withBlocking: false, priority: 1 },
+  { element: process4, probability: 0.5, withBlocking: false, priority: 2 },
 ];
 
 const model = new Model([create, process1, process2, process3, process4]);
