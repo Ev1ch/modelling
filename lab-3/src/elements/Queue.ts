@@ -20,7 +20,7 @@ export default class Queue {
   }
 
   public addItem() {
-    if (this._size === this._size) {
+    if (this.isFull()) {
       throw new Error('Queue is full');
     }
 
@@ -28,7 +28,7 @@ export default class Queue {
   }
 
   public removeItem() {
-    if (this._size === 0) {
+    if (this.isEmpty()) {
       throw new Error('Queue is empty');
     }
 
@@ -36,7 +36,7 @@ export default class Queue {
   }
 
   public isFull() {
-    return this._size === this._size;
+    return this._size === this._capacity;
   }
 
   public isEmpty() {
