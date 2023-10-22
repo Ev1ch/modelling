@@ -1,4 +1,4 @@
-import { Create, Delay, Process, Queue, Variation } from './elements';
+import { Create, Delay, Dispose, Process, Queue, Variation } from './elements';
 import Model from './Model';
 
 class Models {
@@ -35,6 +35,8 @@ class Models {
     cashier2.inAct();
     cashier2.delay = Delay.getExponential(0.3);
 
+    const dispose = new Dispose('DISPOSE', Delay.getConstant(0));
+
     clients.nextElements = [
       { element: cashier1, probability: 0.5, priority: 1, withBlocking: false },
       { element: cashier2, probability: 0.5, priority: 2, withBlocking: false },
@@ -42,7 +44,25 @@ class Models {
     cashier1.neighbors = [cashier2];
     cashier2.neighbors = [cashier1];
 
-    return new Model([clients, cashier1, cashier2]);
+    cashier1.nextElements = [
+      {
+        element: dispose,
+        probability: 1,
+        priority: 1,
+        withBlocking: false,
+      },
+    ];
+
+    cashier2.nextElements = [
+      {
+        element: dispose,
+        probability: 1,
+        priority: 1,
+        withBlocking: false,
+      },
+    ];
+
+    return new Model([clients, cashier1, cashier2, dispose]);
   }
 }
 

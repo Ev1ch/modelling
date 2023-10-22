@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 
-import { Element, Process } from './elements';
+import { Dispose, Element, Process } from './elements';
 import Settings from './Settings';
 
 export default class Model {
@@ -72,18 +72,15 @@ export default class Model {
   printResults() {
     console.log(chalk.yellow('Results'));
 
-    let totalFailures = 0;
-
     for (const element of this.list) {
       element.printResult();
 
       if (element instanceof Process) {
-        const mean = element.meanQueue / this.tCurrent;
-        totalFailures += element.failuresNumber;
-
         process.stdout.write(
           [
-            `mean length of queue = ${mean.toFixed(Settings.PRECISION)}`,
+            `mean length of queue = ${(element.queueTime / this.time).toFixed(
+              Settings.PRECISION,
+            )}`,
             `failure = ${element.failuresNumber} (${(
               element.failuresNumber /
               (element.quantity + element.failuresNumber)
@@ -101,6 +98,73 @@ export default class Model {
       }
     }
 
-    console.log(`Total failures = ${totalFailures}`);
+    process.stdout.write(
+      [
+        `total failures = ${this.getTotalFailuresNumber()}`,
+        `mean items number in all processes = ${this.getMeanItemsNumberInAllProcesses().toFixed(
+          Settings.PRECISION,
+        )}`,
+        `mean time between disposes = ${this.getMeanTimeBetweenDisposes().toFixed(
+          Settings.PRECISION,
+        )}`,
+        `mean time in system = ${this.getMeanTimeInSystem().toFixed(
+          Settings.PRECISION,
+        )}`,
+      ]
+        .map((x) => x.padEnd(Settings.PADDING))
+        .join(Settings.DIVIDER) + '\n',
+    );
+  }
+
+  private getDisposes() {
+    return this.list.filter(
+      (element) => element instanceof Dispose,
+    ) as Dispose[];
+  }
+
+  private getMeanTimeBetweenDisposes() {
+    return (
+      this.getDisposes().reduce(
+        (sum, element) => sum + element.totalTimeBeforeLeave,
+        0,
+      ) / this.getProcessesQuantitiesSum()
+    );
+  }
+
+  private getProcesses() {
+    return this.list.filter(
+      (element) => element instanceof Process,
+    ) as Process[];
+  }
+
+  private getProcessesQuantitiesSum() {
+    return this.getProcesses().reduce(
+      (sum, element) => sum + element.quantity,
+      0,
+    );
+  }
+
+  private getMeanTimeInSystem() {
+    return (
+      this.getProcesses().reduce(
+        (sum, element) => sum + element.workingTime + element.queueTime,
+        0,
+      ) / this.getProcessesQuantitiesSum()
+    );
+  }
+
+  private getMeanItemsNumberInAllProcesses() {
+    return this.getProcesses().reduce(
+      (sum, element) =>
+        sum + element.workers.length + element.queueTime / this.time,
+      0,
+    );
+  }
+
+  private getTotalFailuresNumber() {
+    return this.getProcesses().reduce(
+      (sum, element) => sum + element.failuresNumber,
+      0,
+    );
   }
 }
