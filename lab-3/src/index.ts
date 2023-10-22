@@ -11,7 +11,7 @@ const create = new Create('CREATE', Delay.getExponential(1), {
 
 const process1 = new Process(
   'PROCESS 1',
-  Delay.getExponential(2),
+  Delay.getExponential(1),
   new Queue(0),
   {
     maxWorkersNumber: 1,
