@@ -1,4 +1,3 @@
-import Distribution from './Distribution';
 import { Create, Delay, Process } from './elements';
 import Queue from './elements/Queue';
 import Variation from './elements/Variation';
@@ -6,7 +5,6 @@ import Model from './Model';
 
 const create = new Create('CREATE', Delay.getExponential(1), {
   variation: Variation.RANDOM,
-  distribution: Distribution.EXPONENTIAL,
 });
 
 const process1 = new Process(
