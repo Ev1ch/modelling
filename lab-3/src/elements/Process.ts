@@ -159,7 +159,7 @@ export default class Process extends Element {
   }
 
   public isFree() {
-    return Boolean(this.getFreeWorker()) || !this._queue.isFull();
+    return Boolean(this.getFreeWorker());
   }
 
   private getFreeWorkers() {
