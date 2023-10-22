@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 
-import Distribution from '../Distribution';
 import Settings from '../Settings';
 import Variation from './Variation';
 import Delay from './Delay';
@@ -28,7 +27,7 @@ class Element {
   constructor(name: string, delay: Delay) {
     this._tNext = Infinity;
     this._delay = delay;
-    this._tCurrent = this._tNext;
+    this._tCurrent = 0;
     this._state = 0;
     this._nextElements = [];
     this._id = Element.nextId++;
@@ -177,7 +176,7 @@ class Element {
     }
 
     const sortedNextElements = [...this._nextElements].sort(
-      (a, b) => a.priority! - b.priority!,
+      (a, b) => b.priority! - a.priority!,
     );
 
     for (const { element } of sortedNextElements) {
