@@ -2,9 +2,9 @@ export default class Queue {
   private _size: number;
   private _itemsNumber: number;
 
-  constructor(capacity: number) {
+  constructor(capacity: number, itemsNumber = 0) {
     this._size = capacity;
-    this._itemsNumber = 0;
+    this._itemsNumber = itemsNumber;
   }
 
   public get size() {
