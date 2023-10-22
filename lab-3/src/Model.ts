@@ -92,6 +92,7 @@ export default class Model {
             `mean work time = ${(element.workingTime / this.time).toFixed(
               Settings.PRECISION,
             )}`,
+            `swaps number = ${element.swapsNumber}`,
           ]
             .map((x) => x.padEnd(Settings.PADDING))
             .join(Settings.DIVIDER) + '\n',

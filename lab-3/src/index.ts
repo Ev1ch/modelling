@@ -16,7 +16,7 @@ const process1 = new Process(
   {
     maxWorkersNumber: 1,
     variation: Variation.RANDOM,
-    distribution: Distribution.EXPONENTIAL,
+    minimumDifferenceToSwap: Infinity,
   },
 );
 
@@ -26,8 +26,8 @@ const process2 = new Process(
   new Queue(Infinity),
   {
     maxWorkersNumber: 2,
-    distribution: Distribution.EXPONENTIAL,
     variation: Variation.PROBABILISTIC,
+    minimumDifferenceToSwap: Infinity,
   },
 );
 
@@ -37,20 +37,36 @@ const process3 = new Process(
   new Queue(5),
   {
     maxWorkersNumber: 1,
-    distribution: Distribution.EXPONENTIAL,
     variation: Variation.RANDOM,
+    minimumDifferenceToSwap: 2,
+  },
+);
+
+const process4 = new Process(
+  'PROCESS 4',
+  Delay.getExponential(2),
+  new Queue(5),
+  {
+    maxWorkersNumber: 1,
+    variation: Variation.RANDOM,
+    minimumDifferenceToSwap: 2,
   },
 );
 
 create.nextElements = [
   { element: process1, probability: 1, withBlocking: false, priority: 1 },
 ];
+
 process1.nextElements = [
   { element: process2, probability: 1, withBlocking: false, priority: 1 },
 ];
+
+process3.neighbors = [process4];
+process4.neighbors = [process3];
 process2.nextElements = [
-  { element: process3, probability: 1, withBlocking: true, priority: 1 },
+  { element: process3, probability: 0.5, withBlocking: false, priority: 1 },
+  { element: process4, probability: 0.5, withBlocking: false, priority: 1 },
 ];
 
-const model = new Model([create, process1, process2, process3]);
+const model = new Model([create, process1, process2, process3, process4]);
 model.simulate(1000);

@@ -8,23 +8,25 @@ import Delay from './Delay';
 export interface ProcessOptions {
   maxWorkersNumber: number;
   variation: Variation;
-  distribution: Distribution;
+  minimumDifferenceToSwap: number;
 }
 
 export default class Process extends Element {
   private _queue: Queue;
-  private _maxQueueSize: number;
   private _failuresNumber: number;
   private _maxWorkersNumber: number;
+  private _swapsNumber: number;
+  private _minimumDifferenceToSwap: number;
   private _workers: Worker[];
   private _meanQueue: number;
   private _workingTime: number;
+  private _neighbors: Process[];
 
   constructor(
     name: string,
     delay: Delay,
     queue: Queue,
-    { maxWorkersNumber, variation, distribution }: ProcessOptions,
+    { maxWorkersNumber, variation, minimumDifferenceToSwap }: ProcessOptions,
   ) {
     super(name, delay);
     this._failuresNumber = 0;
@@ -34,8 +36,10 @@ export default class Process extends Element {
     this._queue = queue;
     this._maxWorkersNumber = maxWorkersNumber;
     this.variation = variation;
-    this.distribution = distribution;
     this.delay = delay;
+    this._neighbors = [];
+    this._swapsNumber = 0;
+    this._minimumDifferenceToSwap = minimumDifferenceToSwap;
 
     for (let i = 0; i < this._maxWorkersNumber; i++) {
       this._workers.push(new Worker(i));
@@ -75,6 +79,8 @@ export default class Process extends Element {
     this.tNext = this.getMinimumWorkersTNext();
     busyWorker.state = WorkerState.FREE;
 
+    this.swapQueueItems();
+
     const fullNextElement = this.getFullNextElement();
 
     if (
@@ -99,6 +105,20 @@ export default class Process extends Element {
     fullNextElement?.element.inAct();
   }
 
+  private swapQueueItems() {
+    for (const neighbor of this._neighbors) {
+      if (
+        this._queue.itemsNumber - neighbor.queue.itemsNumber >=
+        this._minimumDifferenceToSwap
+      ) {
+        neighbor.queue.addItem();
+        this._queue.removeItem();
+        this._swapsNumber++;
+        return;
+      }
+    }
+  }
+
   public get queue() {
     return this._queue;
   }
@@ -115,10 +135,6 @@ export default class Process extends Element {
     return this._failuresNumber;
   }
 
-  public get maxQueueSize() {
-    return this._maxQueueSize;
-  }
-
   public get maxWorkersNumber() {
     return this._maxWorkersNumber;
   }
@@ -129,6 +145,18 @@ export default class Process extends Element {
 
   public get workingTime() {
     return this._workingTime;
+  }
+
+  public get neighbors() {
+    return this._neighbors;
+  }
+
+  public set neighbors(neighbors: Process[]) {
+    this._neighbors = neighbors;
+  }
+
+  public get swapsNumber() {
+    return this._swapsNumber;
   }
 
   public isFree() {
