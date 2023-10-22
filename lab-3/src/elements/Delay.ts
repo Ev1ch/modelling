@@ -1,6 +1,8 @@
 import Random from '../Random';
 
-export default class Delay<TGenerator extends (...args: any[]) => number> {
+export default class Delay<
+  TGenerator extends (...args: any[]) => number = (...args: any[]) => number,
+> {
   constructor(
     private _generator: TGenerator,
     private _args: Parameters<TGenerator>,
