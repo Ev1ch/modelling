@@ -1,10 +1,14 @@
 export default class Queue {
+  private _capacity: number;
   private _size: number;
-  private _itemsNumber: number;
 
-  constructor(capacity: number, itemsNumber = 0) {
-    this._size = capacity;
-    this._itemsNumber = itemsNumber;
+  constructor(capacity: number, size = 0) {
+    this._capacity = capacity;
+    this._size = size;
+  }
+
+  public get capacity() {
+    return this._capacity;
   }
 
   public get size() {
@@ -16,30 +20,26 @@ export default class Queue {
   }
 
   public addItem() {
-    if (this._itemsNumber === this._size) {
+    if (this._size === this._size) {
       throw new Error('Queue is full');
     }
 
-    this._itemsNumber++;
+    this._size++;
   }
 
   public removeItem() {
-    if (this._itemsNumber === 0) {
+    if (this._size === 0) {
       throw new Error('Queue is empty');
     }
 
-    this._itemsNumber--;
-  }
-
-  public get itemsNumber() {
-    return this._itemsNumber;
+    this._size--;
   }
 
   public isFull() {
-    return this._itemsNumber === this._size;
+    return this._size === this._size;
   }
 
   public isEmpty() {
-    return this._itemsNumber === 0;
+    return this._size === 0;
   }
 }
