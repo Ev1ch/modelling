@@ -100,7 +100,7 @@ export default class Model {
 
     process.stdout.write(
       [
-        `total failures = ${this.getTotalFailuresNumber()}`,
+        `total failures number = ${this.getTotalFailuresNumber()}`,
         `mean items number in all processes = ${this.getMeanItemsNumberInAllProcesses().toFixed(
           Settings.PRECISION,
         )}`,
@@ -110,6 +110,7 @@ export default class Model {
         `mean time in system = ${this.getMeanTimeInSystem().toFixed(
           Settings.PRECISION,
         )}`,
+        `total swaps number = ${this.getTotalSwapsNumber()}`,
       ]
         .map((x) => x.padEnd(Settings.PADDING))
         .join(Settings.DIVIDER) + '\n',
@@ -164,6 +165,13 @@ export default class Model {
   private getTotalFailuresNumber() {
     return this.getProcesses().reduce(
       (sum, element) => sum + element.failuresNumber,
+      0,
+    );
+  }
+
+  private getTotalSwapsNumber() {
+    return this.getProcesses().reduce(
+      (sum, element) => sum + element.swapsNumber,
       0,
     );
   }
