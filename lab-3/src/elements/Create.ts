@@ -5,19 +5,13 @@ import Variation from './Variation';
 
 interface CreateOptions {
   variation: Variation;
-  distribution: Distribution;
 }
 
 export default class Create extends Element {
-  constructor(
-    name: string,
-    delay: Delay,
-    { variation, distribution }: CreateOptions,
-  ) {
+  constructor(name: string, delay: Delay, { variation }: CreateOptions) {
     super(name, delay);
     this.tNext = 0;
     this.variation = variation;
-    this.distribution = distribution;
   }
 
   public outAct() {
