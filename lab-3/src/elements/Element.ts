@@ -6,9 +6,9 @@ import Delay from './Delay';
 
 export interface NextElement {
   element: Element;
-  probability: number;
-  priority: number;
-  withBlocking: boolean;
+  probability?: number;
+  priority?: number;
+  withBlocking?: boolean;
 }
 
 export interface DelayWithProbability {
