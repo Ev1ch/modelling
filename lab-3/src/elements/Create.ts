@@ -1,5 +1,4 @@
-import Delay from './Delay';
-import Element from './Element';
+import Element, { type DelayWithProbability } from './Element';
 import Process from './Process';
 import Variation from './Variation';
 
@@ -8,8 +7,12 @@ interface CreateOptions {
 }
 
 export default class Create extends Element {
-  constructor(name: string, delay: Delay, { variation }: CreateOptions) {
-    super(name, delay);
+  constructor(
+    name: string,
+    delays: DelayWithProbability[],
+    { variation }: CreateOptions,
+  ) {
+    super(name, delays);
     this.tNext = 0;
     this.variation = variation;
   }
@@ -17,7 +20,7 @@ export default class Create extends Element {
   public outAct() {
     super.outAct();
 
-    this.tNext = this.tCurrent + this.delay.get();
+    this.tNext = this.tCurrent + this.getDelay().get();
 
     this.getNextElement()?.inAct();
   }

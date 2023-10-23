@@ -4,17 +4,22 @@ import Settings from '../Settings';
 import Variation from './Variation';
 import Delay from './Delay';
 
-interface NextElement {
+export interface NextElement {
   element: Element;
   probability: number;
   priority: number;
   withBlocking: boolean;
 }
 
+export interface DelayWithProbability {
+  delay: Delay;
+  probability: number;
+}
+
 class Element {
   private _name: string;
   private _tNext: number;
-  private _delay: Delay;
+  private _delays: DelayWithProbability[];
   private _quantity: number = 0;
   private _tCurrent: number;
   private _state: number;
@@ -24,9 +29,9 @@ class Element {
 
   private static nextId = 0;
 
-  constructor(name: string, delay: Delay) {
+  constructor(name: string, delays: DelayWithProbability[]) {
     this._tNext = Infinity;
-    this._delay = delay;
+    this._delays = delays;
     this._tCurrent = 0;
     this._state = 0;
     this._nextElements = [];
@@ -37,12 +42,12 @@ class Element {
     console.log(`id=${this._id}`);
   }
 
-  public get delay() {
-    return this._delay;
+  public get delays() {
+    return this._delays;
   }
 
-  public set delay(delay: Delay) {
-    this._delay = delay;
+  public set delays(delays: DelayWithProbability[]) {
+    this._delays = delays;
   }
 
   public set nextElements(nextElements: NextElement[]) {
@@ -228,6 +233,31 @@ class Element {
     return this._nextElements[
       Math.floor(Math.random() * this._nextElements.length)
     ].element;
+  }
+
+  protected getDelay() {
+    const random = Math.random();
+
+    if (
+      this._delays.reduce((sum, { probability }) => sum + probability, 0) !== 1
+    ) {
+      throw new Error('Sum of probabilities is not equal to 1');
+    }
+
+    let sum = 0;
+    for (const { probability, delay } of this._delays) {
+      sum += probability;
+
+      if (random <= sum) {
+        return delay;
+      }
+    }
+
+    return null;
+  }
+
+  public static getDelayWithProbability(delay: Delay, probability: number) {
+    return { delay, probability };
   }
 }
 

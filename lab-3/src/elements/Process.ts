@@ -23,11 +23,11 @@ export default class Process extends Element {
 
   constructor(
     name: string,
-    delay: Delay,
+    delays: { delay: Delay; probability: number }[],
     queue: Queue,
     { maxWorkersNumber, variation, minimumDifferenceToSwap }: ProcessOptions,
   ) {
-    super(name, delay);
+    super(name, delays);
     this._failuresNumber = 0;
     this._queueTime = 0;
     this._workers = [];
@@ -35,7 +35,7 @@ export default class Process extends Element {
     this._queue = queue;
     this._maxWorkersNumber = maxWorkersNumber;
     this.variation = variation;
-    this.delay = delay;
+    this.delays = delays;
     this._neighbors = [];
     this._swapsNumber = 0;
     this._minimumDifferenceToSwap = minimumDifferenceToSwap;
@@ -50,7 +50,7 @@ export default class Process extends Element {
 
     if (freeWorker) {
       freeWorker.state = WorkerState.BUSY;
-      const delay = this.delay.get();
+      const delay = this.getDelay().get();
       freeWorker.tNext = this.tCurrent + delay;
       this._workingTime += delay;
       this.tNext = freeWorker.tNext;
@@ -95,7 +95,7 @@ export default class Process extends Element {
     if (!this._queue.isEmpty()) {
       this._queue.removeItem();
       busyWorker.state = WorkerState.BUSY;
-      const delay = this.delay.get();
+      const delay = this.getDelay().get();
       busyWorker.tNext = this.tCurrent + delay;
       this._workingTime += delay;
       this.tNext = this.getMinimumWorkersTNext();
