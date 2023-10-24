@@ -4,32 +4,27 @@ import Settings from '../Settings';
 import Variation from './Variation';
 import Delay from './Delay';
 
-export interface NextElement {
-  element: Element;
+export interface NextElement<TItem> {
+  element: Element<TItem>;
   probability?: number;
   priority?: number;
   withBlocking?: boolean;
 }
 
-export interface DelayWithProbability {
-  delay: Delay;
-  probability: number;
-}
-
-class Element {
+class Element<TItem> {
   private _name: string;
   private _tNext: number;
-  private _delays: DelayWithProbability[];
+  private _delays: { delay: Delay }[];
   private _quantity: number = 0;
   private _tCurrent: number;
   private _state: number;
-  private _nextElements: NextElement[];
+  private _nextElements: NextElement<TItem>[];
   private _id: number;
   private _variation: Variation;
 
   private static nextId = 0;
 
-  constructor(name: string, delays: DelayWithProbability[]) {
+  constructor(name: string, delays: { delay: Delay }[]) {
     this._tNext = Infinity;
     this._delays = delays;
     this._tCurrent = 0;
@@ -46,11 +41,11 @@ class Element {
     return this._delays;
   }
 
-  public set delays(delays: DelayWithProbability[]) {
+  public set delays(delays: { delay: Delay }[]) {
     this._delays = delays;
   }
 
-  public set nextElements(nextElements: NextElement[]) {
+  public set nextElements(nextElements: NextElement<TItem>[]) {
     this._nextElements = nextElements;
   }
 
@@ -78,7 +73,7 @@ class Element {
     this._state = state;
   }
 
-  public inAct() {}
+  public inAct(item: TItem | null) {}
 
   public outAct() {
     this._quantity++;
@@ -142,7 +137,7 @@ class Element {
 
   public doStatistics(delta?: number) {}
 
-  protected getNextElement() {
+  protected getNextElement(item: TItem) {
     switch (this._variation) {
       case Variation.PROBABILISTIC:
         return this.getNextElementByProbability();
@@ -155,8 +150,8 @@ class Element {
     }
   }
 
-  protected getFullNextElement() {
-    const element = this.getNextElement();
+  protected getFullNextElement(item: TItem) {
+    const element = this.getNextElement(item);
 
     if (element === null) {
       return null;
@@ -235,29 +230,8 @@ class Element {
     ].element;
   }
 
-  protected getDelay() {
-    const random = Math.random();
-
-    if (
-      this._delays.reduce((sum, { probability }) => sum + probability, 0) !== 1
-    ) {
-      throw new Error('Sum of probabilities is not equal to 1');
-    }
-
-    let sum = 0;
-    for (const { probability, delay } of this._delays) {
-      sum += probability;
-
-      if (random <= sum) {
-        return delay;
-      }
-    }
-
-    return null;
-  }
-
-  public static getDelayWithProbability(delay: Delay, probability: number) {
-    return { delay, probability };
+  public static getDelay(delay: Delay) {
+    return { delay };
   }
 }
 
