@@ -1,4 +1,5 @@
-import Element, { type DelayWithProbability } from './Element';
+import Delay from './Delay';
+import Element from './Element';
 import Process from './Process';
 import Variation from './Variation';
 
@@ -6,10 +7,16 @@ interface CreateOptions {
   variation: Variation;
 }
 
-export default class Create extends Element {
+interface DelayWithCreator<TItem> {
+  delay: Delay;
+  probability: number;
+  creator: () => TItem;
+}
+
+export default class Create<TItem> extends Element<TItem> {
   constructor(
     name: string,
-    delays: DelayWithProbability[],
+    delays: DelayWithCreator<TItem>[],
     { variation }: CreateOptions,
   ) {
     super(name, delays);
@@ -20,9 +27,19 @@ export default class Create extends Element {
   public outAct() {
     super.outAct();
 
-    this.tNext = this.tCurrent + this.getDelay().get();
+    const { delay, creator } = this.getDelayWithCreator();
 
-    this.getNextElement()?.inAct();
+    this.tNext = this.tCurrent + delay.get();
+
+    this.getNextElement()?.inAct(creator());
+  }
+
+  public get delays() {
+    return super.delays as DelayWithCreator<TItem>[];
+  }
+
+  public set delays(delays: DelayWithCreator<TItem>[]) {
+    super.delays = delays;
   }
 
   protected getNextElement() {
@@ -47,7 +64,8 @@ export default class Create extends Element {
 
     const sortedNextElements = [...this.nextElements].sort(
       (a, b) =>
-        (a.element as Process).queue.size - (b.element as Process).queue.size,
+        (a.element as Process<TItem>).queue.size -
+        (b.element as Process<TItem>).queue.size,
     );
 
     for (const { element } of sortedNextElements) {
@@ -57,5 +75,34 @@ export default class Create extends Element {
     }
 
     return sortedNextElements[0].element;
+  }
+
+  private getDelayWithCreator() {
+    const random = Math.random();
+
+    if (
+      this.delays.reduce((sum, { probability }) => sum + probability, 0) !== 1
+    ) {
+      throw new Error('Sum of probabilities is not equal to 1');
+    }
+
+    let sum = 0;
+    for (const delay of this.delays) {
+      sum += delay.probability;
+
+      if (random <= sum) {
+        return delay;
+      }
+    }
+
+    return null;
+  }
+
+  public static getDelayWithCreator<TItem>(
+    delay: Delay,
+    probability: number,
+    creator: () => TItem,
+  ) {
+    return { delay, probability, creator };
   }
 }
