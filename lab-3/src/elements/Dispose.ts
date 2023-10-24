@@ -1,10 +1,11 @@
-import Element, { type DelayWithProbability } from './Element';
+import Delay from './Delay';
+import Element from './Element';
 
-export default class Dispose extends Element {
+export default class Dispose<TItem> extends Element<TItem> {
   private _tPrevious: number;
   private _totalTimeBeforeLeave: number;
 
-  constructor(name: string, delays: DelayWithProbability[]) {
+  constructor(name: string, delays: { delay: Delay }[]) {
     super(name, delays);
     this.tNext = Infinity;
     this._tPrevious = 0;
