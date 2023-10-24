@@ -46,4 +46,8 @@ export default class Random {
 
     return -1 / deviation / mean + Math.log(number);
   }
+
+  public static boolean() {
+    return Math.random() > 0.5;
+  }
 }
