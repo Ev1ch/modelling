@@ -3,14 +3,14 @@ import chalk from 'chalk';
 import { Dispose, Element, Process } from './elements';
 import Settings from './Settings';
 
-export default class Model {
-  private list: Element[];
+export default class Model<TItem> {
+  private list: Element<TItem>[];
   private tNext: number;
   private tCurrent: number;
   private event: number;
   private time: number;
 
-  constructor(list: Element[]) {
+  constructor(list: Element<TItem>[]) {
     this.list = list;
     this.tNext = 0;
     this.event = 0;
@@ -88,6 +88,9 @@ export default class Model {
             `mean work time = ${(element.workingTime / this.time).toFixed(
               Settings.PRECISION,
             )}`,
+            `mean time before in = ${(
+              element.totalTimeBeforeIn / this.time
+            ).toFixed(Settings.PRECISION)}`,
             `swaps number = ${element.swapsNumber}`,
           ]
             .map((x) => x.padEnd(Settings.PADDING))
@@ -101,9 +104,9 @@ export default class Model {
     process.stdout.write(
       [
         `total failures number = ${this.getTotalFailuresNumber()}`,
-        `mean items number in all processes = ${this.getMeanItemsNumberInAllProcesses().toFixed(
-          Settings.PRECISION,
-        )}`,
+        // `mean items number in all processes = ${this.getMeanItemsNumberInAllProcesses().toFixed(
+        //   Settings.PRECISION,
+        // )}`,
         `mean time between disposes = ${this.getMeanTimeBetweenDisposes().toFixed(
           Settings.PRECISION,
         )}`,
@@ -120,7 +123,7 @@ export default class Model {
   private getDisposes() {
     return this.list.filter(
       (element) => element instanceof Dispose,
-    ) as Dispose[];
+    ) as Dispose<TItem>[];
   }
 
   private getMeanTimeBetweenDisposes() {
@@ -135,7 +138,7 @@ export default class Model {
   private getProcesses() {
     return this.list.filter(
       (element) => element instanceof Process,
-    ) as Process[];
+    ) as Process<TItem>[];
   }
 
   private getProcessesQuantitiesSum() {
